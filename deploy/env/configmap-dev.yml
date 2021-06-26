@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${CI_PROJECT_NAME}
+  namespace: ${NAMESPACE}
+data:
+  # define data at here
+  MYSQL_URL: "mysql:mysql@tcp(127.0.0.1:3306)/vtpsample?charset=utf8mb4&parseTime=True&loc=Local"
+  KAFKA_BROKERS: "localhost:9093"
+  KAFKA_TOPICS: "sarama_topic"
+  KAFKA_CONSUMER_GROUP: "sarama_consumer,sarama2_consumer"
+  AUTH_KAFKA_CONSUMER_INITIAL_OFFSET: "newest"

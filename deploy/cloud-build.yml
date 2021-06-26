@@ -1,0 +1,13 @@
+timeout: 1000s
+options:
+  machineType: 'N1_HIGHCPU_8'
+step:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build',
+           '-t', 'asia.gcr.io/vinid-devops/${_JOB_NAME}:${_IMAGE_TAG}',
+           '--file=Dockerfile', '--build-arg', 'COMMIT_HASH_SHORT=${_COMMIT_HASH_SHORT}', '.'
+    ]
+    id: build-image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ["push", "asia.gcr.io/vinid-devops/${_JOB_NAME}:${_IMAGE_TAG}"]
+    waitFor: ['build-image']
