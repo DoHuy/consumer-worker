@@ -4,10 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"go.uber.org/zap"
 	"log"
-	"strconv"
 	"time"
 	"vtp/config"
 	"vtp/dao"
@@ -16,6 +13,9 @@ import (
 	"vtp/kafka"
 	"vtp/logger"
 	"vtp/utils"
+
+	_ "github.com/go-sql-driver/mysql"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -67,27 +67,27 @@ func main() {
 					continue
 				}
 				rawBody, _ := json.Marshal(document)
-				if err := esClientVanDonHanhTrinh.Insert(ctx, string(rawBody)); err != nil {
+				if err := esClientChiTietDon.Insert(ctx, string(rawBody)); err != nil {
 					logger.Error("insert to elk failed", zap.Error(err))
 					continue
 				}
 				logger.Info("insert success to es", zap.String("data", string(rawBody)))
 				// push to VN sale
-				var invoice dto.Invoice
-				invoice.ID = document.OrderNumber
-				invoice.Time = time.Unix(document.TrackingTime, 0)
-				i, _ := strconv.ParseInt(fmt.Sprintf("%v", document.PostId), 10, 64)
-				invoice.PostID = i
-				invoice.ShipperID = fmt.Sprintf("%v", document.Employee)
-				invoice.State = document.OrderStatus
-				invoice.Description = fmt.Sprintf("%v", document.ProductDescription)
-				invoiceBody, _ := json.Marshal(invoice)
-				_, err := utils.MakePOSTRequestAPI(workerConfig.VnSaleAPIs.ProduceEndpoint, string(invoiceBody))
-				if err != nil {
-					logger.Error("request to VN sale failed", zap.Error(err))
-					continue
-				}
-				logger.Info("push to VN sale success", zap.String("data", string(invoiceBody)))
+				// var invoice dto.Invoice
+				// invoice.ID = document.OrderNumber
+				// invoice.Time = time.Unix(document.TrackingTime, 0)
+				// i, _ := strconv.ParseInt(fmt.Sprintf("%v", document.PostId), 10, 64)
+				// invoice.PostID = i
+				// invoice.ShipperID = fmt.Sprintf("%v", document.Employee)
+				// invoice.State = document.OrderStatus
+				// invoice.Description = fmt.Sprintf("%v", document.ProductDescription)
+				// invoiceBody, _ := json.Marshal(invoice)
+				// _, err := utils.MakePOSTRequestAPI(workerConfig.VnSaleAPIs.ProduceEndpoint, string(invoiceBody))
+				// if err != nil {
+				// 	logger.Error("request to VN sale failed", zap.Error(err))
+				// 	continue
+				// }
+				// logger.Info("push to VN sale success", zap.String("data", string(invoiceBody)))
 			}
 		}()
 
@@ -131,7 +131,7 @@ func main() {
 				continue
 			}
 			rawBody, _ := json.Marshal(document)
-			if err := esClientChiTietDon.Insert(contextMain, string(rawBody)); err != nil {
+			if err := esClientVanDonHanhTrinh.Insert(contextMain, string(rawBody)); err != nil {
 				logger.Error("insert to elk failed", zap.Error(err))
 				continue
 			}
@@ -139,19 +139,21 @@ func main() {
 			// push to VN sale
 			var invoice dto.Invoice
 			invoice.ID = document.OrderNumber
-			invoice.Time = time.Unix(document.TrackingTime, 0)
-			i, _ := strconv.ParseInt(fmt.Sprintf("%v", document.PostId), 10, 64)
-			invoice.PostID = i
+			invoice.Time = time.Unix(document.TrackingTime/1000, 0)
+			// i, _ := strconv.ParseInt(fmt.Sprintf("%v", document.PostId), 10, 64)
+			invoice.PostID = document.PostCode
 			invoice.ShipperID = fmt.Sprintf("%v", document.Employee)
 			invoice.State = document.OrderStatus
 			invoice.Description = fmt.Sprintf("%v", nil)
 			invoiceBody, _ := json.Marshal(invoice)
-			_, err := utils.MakePOSTRequestAPI(workerConfig.VnSaleAPIs.ProduceEndpoint, string(invoiceBody))
-			if err != nil {
-				logger.Error("request to VN sale failed", zap.Error(err))
-				continue
+			if invoice.State > 0 {
+				_, err := utils.MakePOSTRequestAPI(workerConfig.VnSaleAPIs.ProduceEndpoint, string(invoiceBody))
+				if err != nil {
+					logger.Error("request to VN sale failed", zap.Error(err))
+					continue
+				}
+				logger.Info("push to VN sale success", zap.String("data", string(invoiceBody)))
 			}
-			logger.Info("push to VN sale success", zap.String("data", string(invoiceBody)))
 		}
 	}()
 
@@ -166,4 +168,3 @@ func main() {
 		}
 	}
 }
-
