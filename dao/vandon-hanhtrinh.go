@@ -80,3 +80,20 @@ type Vandonhanhtrinh struct {
 	EmployeeName       interface{} `json:"employee_name"`
 	EmployeePhone      interface{} `json:"employee_phone"`
 }
+
+type ChiTietDon struct {
+	CreatedBy     int64       `json:"created_by"`
+	CusId         interface{} `json:"cus_id"`
+	Employee      int         `json:"employee"`
+	EmployeeName  interface{} `json:"employee_name"`
+	EmployeePhone interface{} `json:"employee_phone"`
+	OrderNumber   string      `json:"order_number"`
+	OrderStatus   int         `json:"order_status"`
+	Partner       interface{} `json:"partner"`
+	PartnerCode   string      `json:"partner_code"`
+	PostCode      string      `json:"post_code"`
+	PostId        interface{} `json:"post_id"`
+	Pushed        bool        `json:"pushed"`
+	TrackingNote  string      `json:"tracking_note"`
+	TrackingTime  int64       `json:"tracking_time"`
+}
