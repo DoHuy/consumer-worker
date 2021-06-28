@@ -61,7 +61,7 @@ func main() {
 		go func() {
 			for e := range eventChan {
 				// todo: logic implement to do here
-				var document dao.Vandonhanhtrinh
+				var document dao.ChiTietDon
 				if err := utils.JsonToJson(e.Data, &document); err != nil {
 					logger.Error("json to json failed ", zap.Error(err))
 					continue
@@ -125,7 +125,7 @@ func main() {
 	go func() {
 		for e := range eventChanType2 {
 			// todo: logic implement to do here
-			var document dao.ChiTietDon
+			var document dao.Vandonhanhtrinh
 			if err := utils.JsonToJson(e.Data, &document); err != nil {
 				logger.Error("json to json failed ", zap.Error(err))
 				continue
@@ -143,6 +143,9 @@ func main() {
 			// i, _ := strconv.ParseInt(fmt.Sprintf("%v", document.PostId), 10, 64)
 			invoice.PostID = document.PostCode
 			invoice.ShipperID = fmt.Sprintf("%v", document.Employee)
+			invoice.ShipperName = document.EmployeeName
+			invoice.ShipperPhone = document.EmployeePhone
+
 			invoice.State = document.OrderStatus
 			invoice.Description = fmt.Sprintf("%v", nil)
 			invoiceBody, _ := json.Marshal(invoice)

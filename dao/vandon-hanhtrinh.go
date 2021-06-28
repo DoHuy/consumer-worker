@@ -77,16 +77,16 @@ type Vandonhanhtrinh struct {
 	CreatedBy          int         `json:"created_by"`
 	Employee           int         `json:"employee"`
 	Pushed             bool        `json:"pushed"`
-	EmployeeName       interface{} `json:"employee_name"`
-	EmployeePhone      interface{} `json:"employee_phone"`
+	EmployeeName       string      `json:"employee_name"`
+	EmployeePhone      string      `json:"employee_phone"`
 }
 
 type ChiTietDon struct {
 	CreatedBy     int64       `json:"created_by"`
 	CusId         interface{} `json:"cus_id"`
 	Employee      int         `json:"employee"`
-	EmployeeName  interface{} `json:"employee_name"`
-	EmployeePhone interface{} `json:"employee_phone"`
+	EmployeeName  string      `json:"employee_name"`
+	EmployeePhone string      `json:"employee_phone"`
 	OrderNumber   string      `json:"order_number"`
 	OrderStatus   int         `json:"order_status"`
 	Partner       interface{} `json:"partner"`
