@@ -75,7 +75,7 @@ type VandonhanhtrinhType1 struct {
 	} `json:"data"`
 }
 
-type VandonhanhtrinhType2 struct {
+type ChiTietDon struct {
 	Type int `json:"type"`
 	Data struct {
 		CreatedBy     int64       `json:"created_by"`
@@ -88,9 +88,9 @@ type VandonhanhtrinhType2 struct {
 		Partner       interface{} `json:"partner"`
 		PartnerCode   string      `json:"partner_code"`
 		PostCode      string      `json:"post_code"`
-		PostId        string      `json:"post_id"`
+		PostId        interface{} `json:"post_id"`
 		Pushed        bool        `json:"pushed"`
 		TrackingNote  string      `json:"tracking_note"`
-		TrackingTime  string      `json:"tracking_time"`
+		TrackingTime  int64       `json:"tracking_time"`
 	}
 }

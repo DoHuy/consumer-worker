@@ -26,7 +26,11 @@ func main() {
 		panic(err)
 	}
 	// init elastic search
-	var esClient, errEs = es.New(workerConfig.ElasticConfig.URLs, workerConfig.ElasticConfig.Index)
+	esClientVanDonHanhTrinh, errEs := es.New(workerConfig.ElasticConfig.URLs, workerConfig.ElasticConfig.IndexVanDonHanhTrinh)
+	if errEs != nil {
+		panic(errEs)
+	}
+	esClientChiTietDon, errEs := es.New(workerConfig.ElasticConfig.URLs, workerConfig.ElasticConfig.IndexChiTietDon)
 	if errEs != nil {
 		panic(errEs)
 	}
@@ -63,7 +67,7 @@ func main() {
 					continue
 				}
 				rawBody, _ := json.Marshal(document)
-				if err := esClient.Insert(ctx, string(rawBody)); err != nil {
+				if err := esClientVanDonHanhTrinh.Insert(ctx, string(rawBody)); err != nil {
 					logger.Error("insert to elk failed", zap.Error(err))
 					continue
 				}
@@ -101,11 +105,11 @@ func main() {
 
 	// main consume topic type 2
 	contextMain := context.Background()
-	var eventChanType2 = make(chan dto.VandonhanhtrinhType2)
+	var eventChanType2 = make(chan dto.ChiTietDon)
 	// init 2 goroutine send events
 	go func() {
 		for d := range kafkaInstanceType2.KafkaChan {
-			var eventData dto.VandonhanhtrinhType2
+			var eventData dto.ChiTietDon
 			fmt.Println("event data => ", string(d))
 			err := json.Unmarshal(d, &eventData)
 			if err != nil {
@@ -121,13 +125,13 @@ func main() {
 	go func() {
 		for e := range eventChanType2 {
 			// todo: logic implement to do here
-			var document dao.Vandonhanhtrinh
+			var document dao.ChiTietDon
 			if err := utils.JsonToJson(e.Data, &document); err != nil {
 				logger.Error("json to json failed ", zap.Error(err))
 				continue
 			}
 			rawBody, _ := json.Marshal(document)
-			if err := esClient.Insert(contextMain, string(rawBody)); err != nil {
+			if err := esClientChiTietDon.Insert(contextMain, string(rawBody)); err != nil {
 				logger.Error("insert to elk failed", zap.Error(err))
 				continue
 			}
@@ -140,7 +144,7 @@ func main() {
 			invoice.PostID = i
 			invoice.ShipperID = fmt.Sprintf("%v", document.Employee)
 			invoice.State = document.OrderStatus
-			invoice.Description = fmt.Sprintf("%v", document.ProductDescription)
+			invoice.Description = fmt.Sprintf("%v", nil)
 			invoiceBody, _ := json.Marshal(invoice)
 			_, err := utils.MakePOSTRequestAPI(workerConfig.VnSaleAPIs.ProduceEndpoint, string(invoiceBody))
 			if err != nil {
