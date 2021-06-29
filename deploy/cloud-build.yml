@@ -4,10 +4,10 @@ options:
 step:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build',
-           '-t', 'asia.gcr.io/vinid-devops/${_JOB_NAME}:${_IMAGE_TAG}',
+           '-t', 'asia.gcr.io/huy-devops/${_JOB_NAME}:${_IMAGE_TAG}',
            '--file=Dockerfile', '--build-arg', 'COMMIT_HASH_SHORT=${_COMMIT_HASH_SHORT}', '.'
     ]
     id: build-image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ["push", "asia.gcr.io/vinid-devops/${_JOB_NAME}:${_IMAGE_TAG}"]
+    args: ["push", "asia.gcr.io/huy-devops/${_JOB_NAME}:${_IMAGE_TAG}"]
     waitFor: ['build-image']

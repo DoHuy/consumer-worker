@@ -72,22 +72,6 @@ func main() {
 					continue
 				}
 				logger.Info("insert success to es", zap.String("data", string(rawBody)))
-				// push to VN sale
-				// var invoice dto.Invoice
-				// invoice.ID = document.OrderNumber
-				// invoice.Time = time.Unix(document.TrackingTime, 0)
-				// i, _ := strconv.ParseInt(fmt.Sprintf("%v", document.PostId), 10, 64)
-				// invoice.PostID = i
-				// invoice.ShipperID = fmt.Sprintf("%v", document.Employee)
-				// invoice.State = document.OrderStatus
-				// invoice.Description = fmt.Sprintf("%v", document.ProductDescription)
-				// invoiceBody, _ := json.Marshal(invoice)
-				// _, err := utils.MakePOSTRequestAPI(workerConfig.VnSaleAPIs.ProduceEndpoint, string(invoiceBody))
-				// if err != nil {
-				// 	logger.Error("request to VN sale failed", zap.Error(err))
-				// 	continue
-				// }
-				// logger.Info("push to VN sale success", zap.String("data", string(invoiceBody)))
 			}
 		}()
 
@@ -137,19 +121,19 @@ func main() {
 			}
 			logger.Info("insert success to es", zap.String("data", string(rawBody)))
 			// push to VN sale
-			var invoice dto.Invoice
-			invoice.ID = document.OrderNumber
-			invoice.Time = time.Unix(document.TrackingTime/1000, 0)
-			// i, _ := strconv.ParseInt(fmt.Sprintf("%v", document.PostId), 10, 64)
-			invoice.PostID = document.PostCode
-			invoice.ShipperID = fmt.Sprintf("%v", document.Employee)
-			invoice.ShipperName = document.EmployeeName
-			invoice.ShipperPhone = document.EmployeePhone
+			var ev dto.OrderEvent
+			ev.ID = document.OrderNumber
+			ev.Time = time.Unix(document.TrackingTime/1000, 0)
+			ev.PostID = document.PostCode
+			ev.ShipperID = fmt.Sprintf("%v", document.Employee)
+			ev.ShipperName = document.EmployeeName
+			ev.ShipperPhone = document.EmployeePhone
+			ev.PartnerCode = document.PartnerCode
 
-			invoice.State = document.OrderStatus
-			invoice.Description = fmt.Sprintf("%v", nil)
-			invoiceBody, _ := json.Marshal(invoice)
-			if invoice.State > 0 {
+			ev.State = document.OrderStatus
+			ev.Description = document.TrackingNote
+			invoiceBody, _ := json.Marshal(ev)
+			if ev.State > 0 {
 				_, err := utils.MakePOSTRequestAPI(workerConfig.VnSaleAPIs.ProduceEndpoint, string(invoiceBody))
 				if err != nil {
 					logger.Error("request to VN sale failed", zap.Error(err))
